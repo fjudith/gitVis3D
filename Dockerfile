@@ -12,7 +12,6 @@ ADD views /home/node/gitvis3d/views
 ADD cypherVis3DWebServer8080.js /home/node/gitvis3d/
 ADD githubAPIServer3000.js /home/node/gitvis3d/
 ADD gitlogConvertToNeo4jData.py /home/node/gitvis3d/
-ADD package.json /home/node/gitvis3d/
 
 RUN npm install express --save && \
     npm install \
