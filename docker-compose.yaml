@@ -1,0 +1,90 @@
+version: '3.6'
+
+services:
+  neo4j:
+    container_name: neo4j
+    image: amd64/neo4j:3.5
+    deploy:
+      restart_policy:
+        condition: on-failure
+    networks:
+      - gitvis3d
+    ports:
+      - 7474:7474
+    labels:
+      - traefik.enable=false
+    environment:
+      NEO4J_AUTH: neo4j/V3ry1nS3cur3P4ssw0rd
+    volumes:
+      - gitvis3d-db:/data
+      - gitvis3d-dbimport:/var/lib/neo4j/import
+      - gitvis3d-dbplugins:/plugins
+
+  github-apiserver:
+    container_name: github-apiserver
+    image: fjudith/gitvis3d:1.0.0
+    build:
+      context: ./
+    deploy:
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - neo4j
+    networks:
+      - gitvis3d
+    ports:
+      - 3000:3000
+    environment:
+      NODE_DEBUG: request
+      NEO4J_SERVER: bolt://neo4j:7687
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: V3ry1nS3cur3P4ssw0rd
+    command: ["/usr/local/bin/node", "githubAPIServer3000.js"]
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.frontend.rule=Host:gitvis3d.example.com"
+    #   - "traefik.port=80"
+    #   - "traefik.backend=gitvis3d"
+    #   - "traefik.frontend.entryPoints=http,https"
+    #   - "traefik.docker.network=traefik_proxy"
+
+  cyphervis3d:
+    container_name: cyphervis3d
+    image: fjudith/gitvis3d:1.0.0
+    build:
+      context: ./
+    deploy:
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - neo4j
+    networks:
+      - gitvis3d
+    ports:
+      - 8080:8080
+    tty: true
+    environment:
+      NEO4J_SERVER: http://neo4j:7474
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: V3ry1nS3cur3P4ssw0rd
+    command: ["/usr/local/bin/node", "cypherVis3DWebServer8080.js"]
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.frontend.rule=Host:gitvis3d.example.com"
+    #   - "traefik.port=80"
+    #   - "traefik.backend=gitvis3d"
+    #   - "traefik.frontend.entryPoints=http,https"
+    #   - "traefik.docker.network=traefik_proxy"
+      
+
+networks:
+  # traefik_proxy:
+  #   external:
+  #     name: traefik_proxy
+  gitvis3d:
+    driver: 'bridge'
+
+volumes:
+  gitvis3d-db:
+  gitvis3d-dbimport:
+  gitvis3d-dbplugins:

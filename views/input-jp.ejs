@@ -91,17 +91,10 @@
             var commitlimit = $("#commitlimit").val();
             var accesslimit = $("#accesslimit").val();
             var depthlimit = $("#depthlimit").val();
-
-            //            $.getJSON("http://localhost:3000/getdata", {
-            //                name: name,
-            //                mail: mail
-            //            }, function (res) {
-            //                console.log(res);
-            //                $("#result").text('success');
-            //            });
+            
             var request = $.ajax({
                 type: 'POST',
-                url: 'https://gitvis3d-kofujimura.c9users.io/getdata',  // changed fujimura
+                url: '/getdata',  // changed fujimura
                 datatype: 'json',
                 data: {
                     'name': name,
